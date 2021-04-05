@@ -52,8 +52,6 @@ private:
 
     static const NodeInfo nodes[];
 
-    bool has_ownership;
-
     GraphData* graph_data;
     sf::Text label;
     sf::RectangleShape body;

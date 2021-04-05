@@ -1,6 +1,6 @@
 #include "Node.h"
 
-Node::Node(Type t, PinManager& pin_mgr, GraphData* g_d) : Interactable(LOCALIZE(bool, { return InteractionFun(); })), type(t), graph_data(g_d), has_ownership(true) {
+Node::Node(Type t, PinManager& pin_mgr, GraphData* g_d) : Interactable(LOCALIZE(bool, { return InteractionFun(); })), type(t), graph_data(g_d) {
     label.setString(nodes[type].name);
     label.setFont(fun::R::fonts[0]);
     label.setScale(1, 1);
@@ -37,47 +37,44 @@ Node::Node(Type t, PinManager& pin_mgr, GraphData* g_d) : Interactable(LOCALIZE(
 }
 
 Node::~Node() {
-    if (!has_ownership) return;
-
-    for (auto& in_pin : in_pins) {
+    for (auto in_pin : in_pins) {
         in_pin->PrepareToDie();
     }
 
-    for (auto& out_pin : out_pins) {
+    for (auto out_pin : out_pins) {
         out_pin->PrepareToDie();
     }
 }
 
-Node::Node(Node&& node) noexcept : Interactable(LOCALIZE(bool, { return InteractionFun(); })) {
-    type = node.type;
+Node::Node(Node&& node) noexcept : Interactable(LOCALIZE(bool, { return InteractionFun(); })),
+    type(node.type),
+    in_pins(std::move(node.in_pins)),
+    out_pins(std::move(node.out_pins)),
+    label(std::move(node.label)),
+    body(std::move(node.body)),
+    body_size(node.body_size),
+    body_pos(node.body_pos),
+    drag_offset(node.drag_offset),
+    processed(node.processed),
+    graph_data(node.graph_data) {
+    for (auto pin : in_pins) {
+        pin->node = this;
+    }
 
-    in_pins = std::move(node.in_pins);
-    out_pins = std::move(node.out_pins);
-
-    label = std::move(node.label);
-    body = std::move(node.body);
-
-    body_size = node.body_size;
-    body_pos = node.body_pos;
-
-    drag_offset = node.drag_offset;
-
-    processed = node.processed;
-
-    graph_data = node.graph_data;
-
-    node.has_ownership = false;
+    for (auto pin : out_pins) {
+        pin->node = this;
+    }
 }
 
 void Node::draw(sf::RenderTarget& rt, sf::RenderStates rs) const {
     rt.draw(body);
     rt.draw(label);
 
-    for (auto& in_pin : in_pins) {
+    for (auto in_pin : in_pins) {
         rt.draw(*in_pin);
     }
 
-    for (auto& out_pin : out_pins) {
+    for (auto out_pin : out_pins) {
         rt.draw(*out_pin);
     }
 }

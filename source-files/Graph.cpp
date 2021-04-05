@@ -19,10 +19,6 @@ void Graph::Update() {
         data.pixel_coord.y = 0;
 }
 
-PinManager& Graph::GetPinManager() {
-    return pin_mgr;
-}
-
 void Graph::AddNode(Node::Type type) {
     nodes.emplace_back(type, pin_mgr, &data);
 }

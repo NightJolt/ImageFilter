@@ -35,7 +35,7 @@ void PinManager::CollectGarbage() {
 void PinManager::Update() {
     CollectGarbage();
 
-    std::cout << pins.size() << std::endl;
+    //std::cout << pins.size() << std::endl;
 
     for (auto pin : pins) {
         pin->Update();
@@ -67,7 +67,7 @@ void PinManager::draw(sf::RenderTarget& rt, sf::RenderStates rs) const {
         rt.draw(drag_line);
     }
 
-    for (auto& pin : pins) {
+    for (auto pin : pins) {
         rt.draw(pin->bridge);
     }
 }

@@ -54,12 +54,12 @@ int main() {
     graph.AddNode(Node::Add);
     graph.AddNode(Node::Add);
     graph.AddNode(Node::Add);
-    graph.AddNode(Node::Split);
-    graph.AddNode(Node::Split);
     graph.AddNode(Node::Join);
+    graph.AddNode(Node::Split);
+    graph.AddNode(Node::Split);
     graph.AddNode(Node::ImgPos);
-    graph.AddNode(Node::ImgReader);
     graph.AddNode(Node::ImgWriter);
+    graph.AddNode(Node::ImgReader);
     graph.AddNode(Node::Grayscale);
 
     while (window.isOpen()) {
