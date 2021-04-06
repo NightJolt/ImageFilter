@@ -1,6 +1,6 @@
 #include "Node.h"
 
-Node::Node(Type t, PinManager& pin_mgr, GraphData* g_d) : Interactable(LOCALIZE(bool, { return InteractionFun(); })), type(t), graph_data(g_d) {
+Node::Node(Type t, PinManager& pin_mgr, GraphData* g_d) : Interactable(LOCALIZE(bool, { return InteractionFun(); })), type(t), graph_data(g_d), node_data(NodeData()) {
     label.setString(nodes[type].name);
     label.setFont(fun::R::fonts[0]);
     label.setScale(1, 1);
@@ -34,6 +34,10 @@ Node::Node(Type t, PinManager& pin_mgr, GraphData* g_d) : Interactable(LOCALIZE(
 
     // for testing
     body_pos += sf::Vector2f(fun::Math::Random(0, 501) - 250, fun::Math::Random(0, 501) - 250);
+
+    if (type == ImgWriter) {
+        node_data.img_buffer = new sf::Image;
+    }
 }
 
 Node::~Node() {
@@ -44,9 +48,12 @@ Node::~Node() {
     for (auto out_pin : out_pins) {
         out_pin->PrepareToDie();
     }
+
+    if (type == ImgWriter) delete node_data.img_buffer;
 }
 
 Node::Node(Node&& node) noexcept : Interactable(LOCALIZE(bool, { return InteractionFun(); })),
+
     type(node.type),
     in_pins(std::move(node.in_pins)),
     out_pins(std::move(node.out_pins)),
@@ -56,7 +63,9 @@ Node::Node(Node&& node) noexcept : Interactable(LOCALIZE(bool, { return Interact
     body_pos(node.body_pos),
     drag_offset(node.drag_offset),
     processed(node.processed),
+    node_data(std::move(node.node_data)),
     graph_data(node.graph_data) {
+
     for (auto pin : in_pins) {
         pin->node = this;
     }
@@ -112,6 +121,8 @@ void Node::Update() {
 void Node::Compute() {
     if (type == Add) {
         *reinterpret_cast<float*>(out_pins[0]->data) = *reinterpret_cast<float*>(in_pins[0]->data) + *reinterpret_cast<float*>(in_pins[1]->data);
+
+        label.setString(nodes[type].name + '\n' + std::to_string(*reinterpret_cast<float*>(in_pins[0]->data) + *reinterpret_cast<float*>(in_pins[1]->data)));
     } else if (type == Sub) {
         *reinterpret_cast<float*>(out_pins[0]->data) = *reinterpret_cast<float*>(in_pins[0]->data) - *reinterpret_cast<float*>(in_pins[1]->data);
     } else if (type == Mul) {
@@ -132,12 +143,24 @@ void Node::Compute() {
         *reinterpret_cast<float*>(out_pins[0]->data) = data->x;
         *reinterpret_cast<float*>(out_pins[1]->data) = data->y;
         *reinterpret_cast<float*>(out_pins[2]->data) = data->z;
+
+        label.setString(nodes[type].name + '\n' + std::to_string(*reinterpret_cast<float*>(out_pins[0]->data)) + ' ' + std::to_string(*reinterpret_cast<float*>(out_pins[1]->data)) + ' ' + std::to_string(*reinterpret_cast<float*>(out_pins[2]->data)));
     } else if (type == Join) {
         reinterpret_cast<sf::Vector3f*>(out_pins[0]->data)->x = *reinterpret_cast<float*>(in_pins[0]->data);
         reinterpret_cast<sf::Vector3f*>(out_pins[0]->data)->y = *reinterpret_cast<float*>(in_pins[1]->data);
         reinterpret_cast<sf::Vector3f*>(out_pins[0]->data)->z = *reinterpret_cast<float*>(in_pins[2]->data);
     } else if (type == ImgPos) {
         *reinterpret_cast<sf::Vector2i*>(out_pins[0]->data) = graph_data->pixel_coord;
+
+        label.setString(nodes[type].name + '\n' + to_string(*reinterpret_cast<sf::Vector2i*>(out_pins[0]->data)));
+    } else if (type == ImgReader) {
+        reinterpret_cast<sf::Vector3f*>(out_pins[0]->data)->x = (float)reinterpret_cast<sf::Vector2i*>(in_pins[0]->data)->x;
+        reinterpret_cast<sf::Vector3f*>(out_pins[0]->data)->y = (float)reinterpret_cast<sf::Vector2i*>(in_pins[0]->data)->y;
+        reinterpret_cast<sf::Vector3f*>(out_pins[0]->data)->z = 0;
+
+        label.setString(nodes[type].name + '\n' + to_string(*reinterpret_cast<sf::Vector2f*>(out_pins[0]->data)));
+    } else if (type == ImgWriter) {
+        //*reinterpret_cast<sf::Vector3i*>(out_pins[0]->data) = *reinterpret_cast<sf::Vector3i*>(in_pins[0]->data);
     }
 }
 

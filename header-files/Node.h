@@ -6,6 +6,7 @@
 #include "PinManager.h"
 #include "Interactable.h"
 #include "NodeInfo.h"
+#include "NodeData.h"
 #include "GraphData.h"
 
 #include "globals.h"
@@ -44,15 +45,16 @@ public:
 
     bool processed;
 
+    static const NodeInfo nodes[];
+
 private:
 
     bool InteractionFun();
 
     void draw(sf::RenderTarget&, sf::RenderStates) const override;
 
-    static const NodeInfo nodes[];
-
     GraphData* graph_data;
+    NodeData node_data;
     sf::Text label;
     sf::RectangleShape body;
     const sf::Vector2f init_body_size = { 40, 40 };

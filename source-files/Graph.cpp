@@ -1,5 +1,10 @@
 #include "Graph.h"
 
+Graph::Graph() {
+    // for testing
+    data.img_size = sf::Vector2(1920, 1080);
+}
+
 void Graph::Update() {
     pin_mgr.Update();
 
@@ -8,6 +13,7 @@ void Graph::Update() {
     }
 
     Compute();
+    RenderNodeUI();
 
     data.pixel_coord.x++;
 
@@ -55,4 +61,15 @@ void Graph::ReverseSearch(Node& node) {
     node.processed = true;
 
     node.Compute();
+}
+
+void Graph::RenderNodeUI() {
+    if (!data.is_ui_active) return;
+
+    ImGui::Begin((Node::nodes[((Node*)data.active_node)->type].name + std::string("##NodeUI")).c_str(), &data.is_ui_active, ImGuiWindowFlags_AlwaysAutoResize);
+
+    if (((Node*)data.active_node)->type == Node::Add) {
+    }
+
+    ImGui::End();
 }

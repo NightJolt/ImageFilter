@@ -8,11 +8,12 @@
 class Graph : public sf::Drawable {
 public:
 
+    Graph();
+
     void Update();
-
     void Compute();
-
     void AddNode(Node::Type);
+    void RenderNodeUI();
 
 private:
 
